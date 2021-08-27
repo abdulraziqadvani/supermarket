@@ -1,7 +1,7 @@
 import config from 'config';
 import Sequelize from 'sequelize';
 import { dbConfig } from '@interfaces/db.interface';
-import UserModel from '@models/users.model';
+import UserModel from '@/models/user.model';
 import { logger } from '@utils/logger';
 
 const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');

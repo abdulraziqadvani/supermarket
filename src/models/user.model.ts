@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { User } from '@interfaces/users.interface';
+import { User } from '@interfaces/user.interface';
 
 export type UserCreationAttributes = Optional<User, 'id' | 'email' | 'password'>;
 
@@ -22,7 +22,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
       email: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.STRING(255),
       },
       password: {
         allowNull: false,
@@ -30,7 +30,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
     },
     {
-      tableName: 'users',
+      tableName: 'user',
       sequelize,
     },
   );
