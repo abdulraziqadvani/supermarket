@@ -8,7 +8,7 @@ const { host, user, password, database, pool }: dbConfig = config.get('dbConfig'
 const sequelize = new Sequelize.Sequelize(database, user, password, {
   host: host,
   dialect: 'postgres',
-  // timezone: '+09:00',
+  timezone: '+05:00',
   define: {
     charset: 'utf8mb4',
     collate: 'utf8mb4_general_ci',
@@ -24,6 +24,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
     logger.info(time + 'ms' + ' ' + query);
   },
   benchmark: true,
+  query: { raw: true },
 });
 
 sequelize.authenticate();

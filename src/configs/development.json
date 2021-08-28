@@ -10,7 +10,7 @@
             "max": 5
         }
     },
-    "secretKey": "secretKey",
+    "secretKey": "hpRD5qthpHy0SXkLyJ1B",
     "log": {
         "format": "dev",
         "dir": "../logs"
