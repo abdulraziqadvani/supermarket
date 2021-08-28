@@ -10,7 +10,7 @@ class UsersController {
   public getUserById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const userId = req.user.id;
-      console.log(req.params);
+
       const findOneUserData: User = await this.userService.findUserById(userId);
 
       res.status(200).json({ data: findOneUserData, message: 'findOne' });

@@ -1,15 +1,28 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateProductDto } from '@/dtos/product.dto';
 import { Product } from '@interfaces/product.interface';
 import productService from '@services/products.service';
-import { RequestWithUser } from '@/interfaces/auth.interface';
+import csv from 'csvtojson';
 
 class ProductsController {
   public productService = new productService();
 
-  public uploadProducts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public uploadProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.status(200).json({ data: null, message: 'Products Uploaded' });
+      const file: string = req.file.buffer.toString('utf8');
+
+      const fileData = await csv()
+        .fromString(file)
+        .then(fileObj => {
+          fileObj.forEach(element => {
+            element.price = +element.price;
+            element.available = +element.available;
+          });
+          return fileObj;
+        });
+
+      const products: Product[] = await this.productService.uploadProducts(fileData as []);
+
+      res.status(200).json({ data: products, message: 'Products Uploaded' });
     } catch (error) {
       next(error);
     }

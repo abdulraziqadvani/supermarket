@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import ProductsController from '@controllers/products.controller';
 import { Routes } from '@interfaces/routes.interface';
+import multer from 'multer';
 
 class ProductsRoute implements Routes {
   public path = '/products';
@@ -12,7 +13,7 @@ class ProductsRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post(`${this.path}`, this.productsController.uploadProducts);
+    this.router.post(`${this.path}`, multer().single('products'), this.productsController.uploadProducts);
   }
 }
 

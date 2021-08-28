@@ -5,6 +5,10 @@ import { isEmpty } from '@utils/util';
 
 class ProductService {
   public products = DB.Products;
+
+  public async uploadProducts(data: []): Promise<Product[]> {
+    return data;
+  }
 }
 
 export default ProductService;
