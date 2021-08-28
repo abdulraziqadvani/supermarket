@@ -1,3 +1,6 @@
 {
-
+  "orderStatus": {
+    "DRAFT": "DRAFT",
+    "COMPLETED": "COMPLETED"
+  }
 }
