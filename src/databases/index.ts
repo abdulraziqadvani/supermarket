@@ -37,7 +37,7 @@ const DB = {
   Offers: OfferModel(sequelize),
   OrderProducts: OrderProductModel(sequelize),
   Orders: OrderModel(sequelize),
-  products: ProductModel(sequelize),
+  Products: ProductModel(sequelize),
   Users: UserModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
