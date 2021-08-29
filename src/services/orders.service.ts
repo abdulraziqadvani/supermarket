@@ -38,3 +38,18 @@
 //         break;
 //     }
 // }
+
+import { HttpException } from '@/exceptions/HttpException';
+import DB from '@databases';
+import { Order } from '@interfaces/order.interface';
+
+class OrderService {
+  public orders = DB.Orders;
+
+  public async listOrders(): Promise<Order[]> {
+    const products = this.orders.findAll();
+    return products;
+  }
+}
+
+export default OrderService;
