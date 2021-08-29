@@ -25,6 +25,7 @@ export default function (sequelize: Sequelize): typeof ProductModel {
       name: {
         allowNull: false,
         type: DataTypes.STRING(255),
+        unique: true,
       },
       price: {
         allowNull: false,

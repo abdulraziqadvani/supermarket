@@ -10,7 +10,7 @@ class ProductsController {
     try {
       const file: string = req.file.buffer.toString('utf8');
 
-      const fileData = await csv()
+      const fileData: Product[] = await csv()
         .fromString(file)
         .then(fileObj => {
           fileObj.forEach(element => {
@@ -20,7 +20,7 @@ class ProductsController {
           return fileObj;
         });
 
-      const products: Product[] = await this.productService.uploadProducts(fileData as []);
+      const products: Product[] = await this.productService.uploadProducts(fileData);
 
       res.status(200).json({ data: products, message: 'Products Uploaded' });
     } catch (error) {
