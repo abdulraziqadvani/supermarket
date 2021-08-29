@@ -1,10 +1,10 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { Order } from '@interfaces/order.interface';
+import { Cart } from '@/interfaces/cart.interface';
 // import { UserModel } from '@models/user.model';
 
-export type OrderCreationAttributes = Optional<Order, 'id' | 'user_id' | 'status' | 'subtotal' | 'discount' | 'total'>;
+export type CartCreationAttributes = Optional<Cart, 'id' | 'user_id' | 'status' | 'subtotal' | 'discount' | 'total'>;
 
-export class OrderModel extends Model<Order, OrderCreationAttributes> implements Order {
+export class CartModel extends Model<Cart, CartCreationAttributes> implements Cart {
   public id: number;
   public user_id: number;
   public status: string;
@@ -16,8 +16,8 @@ export class OrderModel extends Model<Order, OrderCreationAttributes> implements
   public readonly updatedAt!: Date;
 }
 
-export default function (sequelize: Sequelize): typeof OrderModel {
-  OrderModel.init(
+export default function (sequelize: Sequelize): typeof CartModel {
+  CartModel.init(
     {
       id: {
         autoIncrement: true,
@@ -47,12 +47,12 @@ export default function (sequelize: Sequelize): typeof OrderModel {
       },
     },
     {
-      tableName: 'order',
+      tableName: 'cart',
       sequelize,
     },
   );
 
-  // OrderModel.belongsTo(UserModel, { targetKey: 'id' });
+  // CartModel.belongsTo(UserModel, { targetKey: 'id' });
 
-  return OrderModel;
+  return CartModel;
 }

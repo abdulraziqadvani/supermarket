@@ -2,8 +2,8 @@ import config from 'config';
 import Sequelize from 'sequelize';
 import { dbConfig } from '@interfaces/db.interface';
 import OfferModel from '@/models/offer.model';
-import OrderProductModel from '@/models/order_product.model';
-import OrderModel from '@/models/order.model';
+import CartProductModel from '@/models/cart_product.model';
+import CartModel from '@/models/cart.model';
 import ProductModel from '@/models/product.model';
 import UserModel from '@/models/user.model';
 import { logger } from '@utils/logger';
@@ -35,8 +35,8 @@ sequelize.authenticate();
 
 const DB = {
   Offers: OfferModel(sequelize),
-  OrderProducts: OrderProductModel(sequelize),
-  Orders: OrderModel(sequelize),
+  CartProducts: CartProductModel(sequelize),
+  Cart: CartModel(sequelize),
   Products: ProductModel(sequelize),
   Users: UserModel(sequelize),
   sequelize, // connection instance (RAW queries)

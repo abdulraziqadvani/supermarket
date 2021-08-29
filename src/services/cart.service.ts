@@ -2,13 +2,13 @@ import { HttpException } from '@/exceptions/HttpException';
 import { Offer } from '@/interfaces/offer.interface';
 import { Product } from '@/interfaces/product.interface';
 import DB from '@databases';
-import { Order } from '@interfaces/order.interface';
-import { OrderProduct, createOrderProduct } from '@interfaces/order_product.interface';
+import { Cart } from '@/interfaces/cart.interface';
+import { CartProduct, createCartProduct } from '@interfaces/cart_product.interface';
 import config from 'config';
 
 class OrderService {
-  public orders = DB.Orders;
-  public orderProducts = DB.OrderProducts;
+  public cart = DB.Cart;
+  public cartProducts = DB.CartProducts;
   public offers = DB.Offers;
   public products = DB.Products;
 
@@ -16,14 +16,14 @@ class OrderService {
    * Add products into the cart of a User.
    *
    * @param {number} userId - ID of a User.
-   * @param {createOrderProduct} orderProduct - Object of a Product to be added along with count.
+   * @param {createCartProduct} orderProduct - Object of a Product to be added along with count.
    * @returns {void} - Returns nothing.
    */
-  public async addProductIntoCart(userId: number, orderProduct: createOrderProduct): Promise<void> {
+  public async addProductIntoCart(userId: number, orderProduct: createCartProduct): Promise<void> {
     const orderStatus = config.get('orderStatus');
 
     // Get an existing (if any) of a user, else create a new one.
-    const [userOrder] = await this.orders.findOrCreate({
+    const [userCart] = await this.cart.findOrCreate({
       where: {
         user_id: userId,
         status: orderStatus['DRAFT'],
@@ -45,26 +45,26 @@ class OrderService {
     }
 
     // Check if a product is already into the cart.
-    const op: OrderProduct = await this.orderProducts.findOne({
+    const op: CartProduct = await this.cartProducts.findOne({
       where: {
-        order_id: userOrder.id,
+        cart_id: userCart.id,
         product_id: orderProduct.product_id,
       },
     });
 
     // If product does not exist in cart then create an entry in DB else update the existing entry.
     if (!op) {
-      this.orderProducts.create({
-        order_id: userOrder.id,
+      this.cartProducts.create({
+        cart_id: userCart.id,
         product_id: orderProduct.product_id,
         count: orderProduct.count,
       });
     } else {
-      this.orderProducts.update(
+      this.cartProducts.update(
         { count: orderProduct.count },
         {
           where: {
-            order_id: userOrder.id,
+            cart_id: userCart.id,
             product_id: orderProduct.product_id,
           },
         },
@@ -78,10 +78,10 @@ class OrderService {
    * Returns the current cart of a User.
    *
    * @param {number} userId - ID of a User.
-   * @returns {Promise<{ cart: Order; products: OrderProduct[] }>} - Returns the user cart and it's products.
+   * @returns {Promise<{ cart: Order; products: CartProduct[] }>} - Returns the user cart and it's products.
    */
-  public async getCurrentCart(userId: number): Promise<{ cart: Order; products: OrderProduct[] }> {
-    const userCart: Order = await this.orders.findOne({
+  public async getCurrentCart(userId: number): Promise<{ cart: Cart; products: CartProduct[] }> {
+    const userCart: Cart = await this.cart.findOne({
       where: { user_id: userId },
     });
 
@@ -89,84 +89,84 @@ class OrderService {
       throw new HttpException(412, `No cart exist for this user.`);
     }
 
-    const cartProducts: OrderProduct[] = await this.orderProducts.findAll({
-      where: { order_id: userCart.id },
+    const cartProducts: CartProduct[] = await this.cartProducts.findAll({
+      where: { cart_id: userCart.id },
     });
 
     return { cart: userCart, products: cartProducts };
   }
 
-  public async createOrder(userId: number, products: []): Promise<{ order: Order; products: OrderProduct[] }> {
-    // if (orderId) {
-    //   const order = this.orders.findOne({ where: { id: orderId, user_id: userId } });
-    //   if (!order) {
-    //     throw new HttpException(412, 'User order not found with provided Order ID.');
-    //   }
+  // public async createOrder(userId: number, products: []): Promise<{ order: Order; products: CartProduct[] }> {
+  //   // if (orderId) {
+  //   //   const order = this.orders.findOne({ where: { id: orderId, user_id: userId } });
+  //   //   if (!order) {
+  //   //     throw new HttpException(412, 'User order not found with provided Order ID.');
+  //   //   }
 
-    //   this.orders.update({}, { where: {} });
-    // }
+  //   //   this.orders.update({}, { where: {} });
+  //   // }
 
-    const order: Order = await this.orders.create(
-      {
-        user_id: userId,
-        status: config.get('orderStatus')['DRAFT'],
-      },
-      { returning: true },
-    );
+  //   const order: Cart = await this.orders.create(
+  //     {
+  //       user_id: userId,
+  //       status: config.get('orderStatus')['DRAFT'],
+  //     },
+  //     { returning: true },
+  //   );
 
-    for (const element of products) {
-      (element as {})['user_id'] = userId;
-      (element as {})['order_id'] = order.id;
+  //   for (const element of products) {
+  //     (element as {})['user_id'] = userId;
+  //     (element as {})['order_id'] = order.id;
 
-      if (element['offer']) {
-        const offer: Offer = await this.offers
-          .findOne({
-            where: {
-              key: element['offer'],
-              product_id: element['product_id'],
-            },
-          })
-          .catch(() => {
-            throw new HttpException(412, `Offer not exist with provided code for Product ID ${element['product_id']}`);
-          });
+  //     if (element['offer']) {
+  //       const offer: Offer = await this.offers
+  //         .findOne({
+  //           where: {
+  //             key: element['offer'],
+  //             product_id: element['product_id'],
+  //           },
+  //         })
+  //         .catch(() => {
+  //           throw new HttpException(412, `Offer not exist with provided code for Product ID ${element['product_id']}`);
+  //         });
 
-        if (!offer) {
-          throw new HttpException(412, `Offer not exist with provided code for Product ID ${element['product_id']}`);
-        }
-        (element as {})['offer_id'] = offer.id;
-      }
-    }
+  //       if (!offer) {
+  //         throw new HttpException(412, `Offer not exist with provided code for Product ID ${element['product_id']}`);
+  //       }
+  //       (element as {})['offer_id'] = offer.id;
+  //     }
+  //   }
 
-    const result = await this.orderProducts.bulkCreate(products, { returning: true });
+  //   const result = await this.cartProducts.bulkCreate(products, { returning: true });
 
-    return { order, products: result };
-  }
+  //   return { order, products: result };
+  // }
 
-  public async listUserOrders(userId: number): Promise<Order[]> {
-    const products = this.orders.findAll({ where: { user_id: userId } });
-    return products;
-  }
+  // public async listUserOrders(userId: number): Promise<Order[]> {
+  //   const products = this.orders.findAll({ where: { user_id: userId } });
+  //   return products;
+  // }
 
   public async checkoutOrder(orderId: number, userId: number): Promise<any> {
     const completedStatusKey = config.get('orderStatus')['COMPLETED'];
-    const order = await this.orders.findOne({
+    const cart = await this.cart.findOne({
       where: {
         id: orderId,
         user_id: userId,
       },
     });
 
-    if (!order) {
+    if (!cart) {
       throw new HttpException(412, `Order does not exist with provided ID.`);
     }
 
-    if (order.status === completedStatusKey) {
+    if (cart.status === completedStatusKey) {
       throw new HttpException(412, `Order has already being completed.`);
     }
 
-    const orderProducts: OrderProduct[] = await this.orderProducts.findAll({
+    const cartProducts: CartProduct[] = await this.cartProducts.findAll({
       where: {
-        order_id: order.id,
+        cart_id: cart.id,
       },
     });
 
@@ -176,7 +176,7 @@ class OrderService {
       total: 0,
     };
 
-    for (const element of orderProducts) {
+    for (const element of cartProducts) {
       const product: Product = await this.products.findByPk(element.product_id);
       const offer: Offer = await this.offers.findByPk(element.offer_id);
       const calPrice = this.calculateProductAmount(product.price, element.count, offer?.key || null);
@@ -185,14 +185,14 @@ class OrderService {
       result.total += calPrice.total;
     }
 
-    this.orders.update(
+    this.cart.update(
       {
         subtotal: result.subtotal,
         discount: result.discount,
         total: result.total,
         status: completedStatusKey,
       },
-      { where: { id: order.id } },
+      { where: { id: cart.id } },
     );
 
     return result;
