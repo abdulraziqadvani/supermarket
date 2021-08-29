@@ -17,6 +17,7 @@ class ProductsRoute implements Routes {
   private initializeRoutes() {
     this.router.get(`${this.path}/user`, authMiddleware, this.ordersController.listUserOrders);
     this.router.post(`${this.path}`, authMiddleware, validationMiddleware(CreateOrderDto, 'body'), this.ordersController.createOrder);
+    this.router.post(`${this.path}/checkout/:id(\\d+)`, authMiddleware, this.ordersController.checkoutOrder);
   }
 }
 

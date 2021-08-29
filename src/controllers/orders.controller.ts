@@ -28,6 +28,15 @@ class OrdersController {
       next(error);
     }
   };
+
+  public checkoutOrder = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const orders = await this.orderService.checkoutOrder(+req.params.id, req.user.id);
+      res.status(200).json({ data: orders, message: 'Order Completed' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default OrdersController;

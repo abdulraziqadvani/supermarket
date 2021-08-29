@@ -23,7 +23,7 @@ export default function (sequelize: Sequelize): typeof OfferModel {
       },
       key: {
         allowNull: false,
-        type: DataTypes.STRING(255),
+        type: DataTypes.ENUM('BUY_2_GET_1_FREE', 'BUY_1_GET_HALF_OFF'),
       },
       product_id: {
         allowNull: false,

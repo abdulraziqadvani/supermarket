@@ -2,5 +2,9 @@
   "orderStatus": {
     "DRAFT": "DRAFT",
     "COMPLETED": "COMPLETED"
+  },
+  "offers": {
+    "BUY_2_GET_1_FREE": "BUY_2_GET_1_FREE",
+    "BUY_1_GET_HALF_OFF": "BUY_1_GET_HALF_OFF"
   }
 }
