@@ -8,3 +8,8 @@ export interface OrderProduct {
   discount: number;
   total: number;
 }
+
+export interface createOrderProduct {
+  product_id: number;
+  count: number;
+}

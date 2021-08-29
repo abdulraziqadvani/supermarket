@@ -1,50 +1,9 @@
-// buy_2_get_1_free, 1 (egg)
-
-// cart = [];
-// egg, 3, buy_2_get_1_free
-
-// cart.forEach((element) => {
-//     result = orm(offer.exist && offer.productId == egg);
-//     if (result) {
-//         offserParcel();
-//     }
-// });
-
-// [
-//     {
-//         itemId: egg
-//         count: 3
-//         coupon: ''
-//     },
-//     {
-//         itemId: bread
-//         count: 3
-//         coupon: ''
-//     }
-// ]
-
-// offerParcel(offerKey, productAmount, productCount) {
-//     switch offerKey {
-//         case buy_2_get_1_free:
-//             const chargeCount = productCount - Math.floor(productCount/3);
-//             const chargeAmount = chargeCount * productAmount
-//             return chargeAmount;
-//         break;
-//         case buy_1_get_half_off:
-//             const halfCount = Math.floor(productCount/2);
-//             const chargeCount = productCount - halfCount;
-//             const chargeAmount = (chargeCount * productAmount) + (halfCount * (productAmount / 2));
-//             return chargeAmount;
-//         break;
-//     }
-// }
-
 import { HttpException } from '@/exceptions/HttpException';
 import { Offer } from '@/interfaces/offer.interface';
 import { Product } from '@/interfaces/product.interface';
 import DB from '@databases';
 import { Order } from '@interfaces/order.interface';
-import { OrderProduct } from '@interfaces/order_product.interface';
+import { OrderProduct, createOrderProduct } from '@interfaces/order_product.interface';
 import config from 'config';
 
 class OrderService {
@@ -52,6 +11,90 @@ class OrderService {
   public orderProducts = DB.OrderProducts;
   public offers = DB.Offers;
   public products = DB.Products;
+
+  /**
+   * Add products into the cart of a User.
+   *
+   * @param {number} userId - ID of a User.
+   * @param {createOrderProduct} orderProduct - Object of a Product to be added along with count.
+   * @returns {void} - Returns nothing.
+   */
+  public async addProductIntoCart(userId: number, orderProduct: createOrderProduct): Promise<void> {
+    const orderStatus = config.get('orderStatus');
+
+    // Get an existing (if any) of a user, else create a new one.
+    const [userOrder] = await this.orders.findOrCreate({
+      where: {
+        user_id: userId,
+        status: orderStatus['DRAFT'],
+      },
+      defaults: {
+        user_id: userId,
+      },
+    });
+
+    // Verify product exist with a provided ID.
+    const product: Product = await this.products.findByPk(orderProduct.product_id);
+    if (!product) {
+      throw new HttpException(412, `Product does not exist with ID ${orderProduct.product_id}`);
+    }
+
+    // Verify product stock is available.
+    if (product.available < orderProduct.count) {
+      throw new HttpException(412, `Unable to add product into cart. Only ${product.available} piece(s) are available.`);
+    }
+
+    // Check if a product is already into the cart.
+    const op: OrderProduct = await this.orderProducts.findOne({
+      where: {
+        order_id: userOrder.id,
+        product_id: orderProduct.product_id,
+      },
+    });
+
+    // If product does not exist in cart then create an entry in DB else update the existing entry.
+    if (!op) {
+      this.orderProducts.create({
+        order_id: userOrder.id,
+        product_id: orderProduct.product_id,
+        count: orderProduct.count,
+      });
+    } else {
+      this.orderProducts.update(
+        { count: orderProduct.count },
+        {
+          where: {
+            order_id: userOrder.id,
+            product_id: orderProduct.product_id,
+          },
+        },
+      );
+    }
+
+    return null;
+  }
+
+  /**
+   * Returns the current cart of a User.
+   *
+   * @param {number} userId - ID of a User.
+   * @returns {Promise<{ cart: Order; products: OrderProduct[] }>} - Returns the user cart and it's products.
+   */
+  public async getCurrentCart(userId: number): Promise<{ cart: Order; products: OrderProduct[] }> {
+    const userCart: Order = await this.orders.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!userCart) {
+      throw new HttpException(412, `No cart exist for this user.`);
+    }
+
+    const cartProducts: OrderProduct[] = await this.orderProducts.findAll({
+      where: { order_id: userCart.id },
+    });
+
+    return { cart: userCart, products: cartProducts };
+  }
 
   public async createOrder(userId: number, products: []): Promise<{ order: Order; products: OrderProduct[] }> {
     // if (orderId) {

@@ -16,3 +16,11 @@ export class CreateOrderDto {
   // @ValidateNested({ each: true })
   public products: CreateOrderProductsDto[];
 }
+
+export class addProductIntoCart {
+  @IsNumber()
+  public product_id: number;
+
+  @IsNumber()
+  public count: number;
+}
