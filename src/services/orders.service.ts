@@ -46,8 +46,8 @@ import { Order } from '@interfaces/order.interface';
 class OrderService {
   public orders = DB.Orders;
 
-  public async listOrders(): Promise<Order[]> {
-    const products = this.orders.findAll();
+  public async listUserOrders(userId: number): Promise<Order[]> {
+    const products = this.orders.findAll({ where: { user_id: userId } });
     return products;
   }
 }

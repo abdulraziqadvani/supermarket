@@ -13,7 +13,7 @@ class ProductsRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, authMiddleware, this.ordersController.listOrders);
+    this.router.get(`${this.path}/user`, authMiddleware, this.ordersController.listUserOrders);
   }
 }
 
