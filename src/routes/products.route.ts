@@ -13,6 +13,7 @@ class ProductsRoute implements Routes {
   }
 
   private initializeRoutes() {
+    this.router.get(`${this.path}`, this.productsController.listProducts);
     this.router.post(`${this.path}`, multer().single('products'), this.productsController.uploadProducts);
   }
 }

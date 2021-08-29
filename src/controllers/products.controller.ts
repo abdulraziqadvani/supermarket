@@ -6,6 +6,15 @@ import csv from 'csvtojson';
 class ProductsController {
   public productService = new productService();
 
+  public listProducts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const products: Product[] = await this.productService.listProducts();
+      res.status(200).json({ data: products, message: 'Products List' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public uploadProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const file: string = req.file.buffer.toString('utf8');

@@ -5,8 +5,13 @@ import { Product } from '@interfaces/product.interface';
 class ProductService {
   public products = DB.Products;
 
+  public async listProducts(): Promise<Product[]> {
+    const products = this.products.findAll();
+    return products;
+  }
+
   public async uploadProducts(data: Product[]): Promise<Product[]> {
-    const result = await this.products
+    const result = this.products
       .bulkCreate(data)
       .then(res => res)
       .catch(err => {
