@@ -6,6 +6,12 @@ import { isEmpty } from '@utils/util';
 class UserService {
   public users = DB.Users;
 
+  /**
+   * Returns the user based on User ID.
+   *
+   * @param userId - ID of a User.
+   * @returns Returns the user data.
+   */
   public async findUserById(userId: number): Promise<User> {
     if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
 

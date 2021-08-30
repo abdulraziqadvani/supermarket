@@ -6,6 +6,13 @@ import csv from 'csvtojson';
 class ProductsController {
   public productService = new productService();
 
+  /**
+   * List Products.
+   *
+   * @param req - Request response along with User data.
+   * @param res - Response to be sent to a user.
+   * @param next - For Triggering the next function.
+   */
   public listProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const products: Product[] = await this.productService.listProducts();
@@ -15,6 +22,13 @@ class ProductsController {
     }
   };
 
+  /**
+   * Get Products data and save it into Database.
+   *
+   * @param req - Request response along with User data.
+   * @param res - Response to be sent to a user.
+   * @param next - For Triggering the next function.
+   */
   public uploadProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const file: string = req.file.buffer.toString('utf8');
