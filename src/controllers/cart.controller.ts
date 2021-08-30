@@ -16,7 +16,7 @@ class CartController {
     try {
       const result = await this.cartService.addProductIntoCart(req.user.id, req.body);
 
-      res.status(201).json({ data: result, message: 'Product added into the cart.' });
+      res.status(200).json({ data: result, message: 'Product added into the cart.' });
     } catch (error) {
       next(error);
     }
@@ -33,7 +33,24 @@ class CartController {
     try {
       const result = await this.cartService.getCurrentCart(req.user.id);
 
-      res.status(201).json({ data: result, message: 'Current cart information.' });
+      res.status(200).json({ data: result, message: 'Current cart information.' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Generate bill of a user cart.
+   *
+   * @param {RequestWithUser} req - Request response along with User data.
+   * @param {Response} res - Response to be sent to a user.
+   * @param {NextFunction} next - For Triggering the next function.
+   */
+  public calculateBill = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.cartService.calculateBill(req.user.id);
+
+      res.status(200).json({ data: result, message: 'Bill of a user cart.' });
     } catch (error) {
       next(error);
     }

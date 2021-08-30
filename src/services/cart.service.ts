@@ -96,6 +96,58 @@ class OrderService {
     return { cart: userCart, products: cartProducts };
   }
 
+  /**
+   *
+   * @param {number} userId - ID of a User.
+   * @returns
+   */
+  public async calculateBill(userId: number): Promise<Cart> {
+    let userCart: Cart = await this.cart.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!userCart) {
+      throw new HttpException(412, `No cart exist for this user.`);
+    }
+
+    const cartProducts: CartProduct[] = await this.cartProducts.findAll({
+      where: {
+        cart_id: userCart.id,
+      },
+    });
+
+    const result = {
+      subtotal: 0,
+      discount: 0,
+      total: 0,
+    };
+
+    for (const element of cartProducts) {
+      const product: Product = await this.products.findByPk(element.product_id);
+      const offer: Offer = await this.offers.findByPk(element.offer_id);
+      const calPrice = this.calculateProductAmount(product.price, element.count, offer?.key || null);
+      result.subtotal += calPrice.subtotal;
+      result.discount += calPrice.discount;
+      result.total += calPrice.total;
+    }
+
+    userCart = await this.cart
+      .update(
+        {
+          subtotal: result.subtotal,
+          discount: result.discount,
+          total: result.total,
+        },
+        {
+          where: { id: userCart.id },
+          returning: true,
+        },
+      )
+      .then(([, savedUser]) => savedUser[0]);
+
+    return userCart;
+  }
+
   // public async createOrder(userId: number, products: []): Promise<{ order: Order; products: CartProduct[] }> {
   //   // if (orderId) {
   //   //   const order = this.orders.findOne({ where: { id: orderId, user_id: userId } });
