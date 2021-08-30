@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Product } from '@interfaces/product.interface';
 import productService from '@services/products.service';
 import csv from 'csvtojson';
+import { HttpException } from '@/exceptions/HttpException';
 
 class ProductsController {
   public productService = new productService();
@@ -32,16 +33,22 @@ class ProductsController {
   public uploadProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const file: string = req.file.buffer.toString('utf8');
+      let failedCsv = false;
 
       const fileData: Product[] = await csv()
         .fromString(file)
         .then(fileObj => {
           fileObj.forEach(element => {
+            if (!failedCsv) {
+              failedCsv = [element.name && element.price && element.available].some(o => [null, undefined].includes(o));
+            }
             element.price = +element.price;
             element.available = +element.available;
           });
           return fileObj;
         });
+
+      if (failedCsv) throw new HttpException(400, 'Some of the data in CSV is incorrect.');
 
       const products: Product[] = await this.productService.uploadProducts(fileData);
 
