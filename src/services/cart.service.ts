@@ -81,14 +81,17 @@ class OrderService {
    * @returns {Promise<{ cart: Order; products: CartProduct[] }>} - Returns the user cart and it's products.
    */
   public async getCurrentCart(userId: number): Promise<{ cart: Cart; products: CartProduct[] }> {
+    // Check if has any active cart exist.
     const userCart: Cart = await this.cart.findOne({
       where: { user_id: userId },
     });
 
+    // Throws an if no active cart exist.
     if (!userCart) {
       throw new HttpException(412, `No cart exist for this user.`);
     }
 
+    // Get Product ID associated with a cart.
     const cartProducts: CartProduct[] = await this.cartProducts.findAll({
       where: { cart_id: userCart.id },
     });
@@ -97,19 +100,23 @@ class OrderService {
   }
 
   /**
+   * Generate bill of a user cart.
    *
    * @param {number} userId - ID of a User.
-   * @returns
+   * @returns {Cart} - Returns the cart object after calculating the bill.
    */
   public async calculateBill(userId: number): Promise<Cart> {
+    // Check if has any active cart exist.
     let userCart: Cart = await this.cart.findOne({
       where: { user_id: userId },
     });
 
+    // Throws an if no active cart exist.
     if (!userCart) {
       throw new HttpException(412, `No cart exist for this user.`);
     }
 
+    // Get Product ID associated with a cart.
     const cartProducts: CartProduct[] = await this.cartProducts.findAll({
       where: {
         cart_id: userCart.id,
@@ -122,15 +129,23 @@ class OrderService {
       total: 0,
     };
 
+    // Iterate through a Product Ids.
     for (const element of cartProducts) {
+      // Get Product data based on it's ID.
       const product: Product = await this.products.findByPk(element.product_id);
+
+      // Get Offer data based on it's ID.
       const offer: Offer = await this.offers.findByPk(element.offer_id);
+
+      // Calculate price based on product price, count and offer key.
       const calPrice = this.calculateProductAmount(product.price, element.count, offer?.key || null);
+
       result.subtotal += calPrice.subtotal;
       result.discount += calPrice.discount;
       result.total += calPrice.total;
     }
 
+    // Update the bill of a user cart.
     userCart = await this.cart
       .update(
         {
