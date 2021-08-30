@@ -24,7 +24,7 @@ class AuthService {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     const createUserData: User = (await this.users.create({ ...userData, password: hashedPassword })).get({ plain: true });
 
-    (createUserData as any).token = generateJwtToken({ id: createUserData.id });
+    createUserData.token = generateJwtToken({ id: createUserData.id });
 
     return createUserData;
   }
@@ -44,7 +44,7 @@ class AuthService {
     const isPasswordMatching: boolean = await bcrypt.compare(userData.password, findUser.password);
     if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
 
-    (findUser as any).token = generateJwtToken({ id: findUser.id });
+    findUser.token = generateJwtToken({ id: findUser.id });
 
     return findUser;
   }
