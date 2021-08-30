@@ -1,4 +1,4 @@
-import { IsArray, IsNumber, ValidateNested } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString, ValidateIf, ValidateNested } from 'class-validator';
 
 // export class CreateOrderProductsDto {
 //   @IsNumber()
@@ -23,4 +23,14 @@ export class addProductIntoCart {
 
   @IsNumber()
   public count: number;
+}
+
+export class addOffer {
+  @IsNumber()
+  public product_id: number;
+
+  @IsString()
+  @IsOptional()
+  @ValidateIf((object, value) => value !== null)
+  public offer_key: number;
 }

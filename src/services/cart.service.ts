@@ -163,6 +163,75 @@ class OrderService {
     return userCart;
   }
 
+  /**
+   * Apply an offer to a Product in a User Cart.
+   * If `offerKey` is provided then it will associate `offer_id` else will remove offer from User Product in a Cart.
+   *
+   * @param {number} userId - ID of a User.
+   * @param {number} productId - ID of a Product.
+   * @param {string} offerKey - Key of a Offer.
+   * @returns {Cart} - Returns the update cart information of a User.
+   */
+  public async addOffer(userId: number, productId: number, offerKey?: string): Promise<Cart> {
+    // Check if has any active cart exist.
+    const userCart: Cart = await this.cart.findOne({
+      where: { user_id: userId },
+    });
+
+    // Throws an if no active cart exist.
+    if (!userCart) {
+      throw new HttpException(412, `No cart exist for this user.`);
+    }
+
+    let offer: Offer;
+
+    if (offerKey) {
+      // Check if offer exist with provided Key.
+      offer = await this.offers
+        .findOne({
+          where: {
+            key: offerKey,
+            product_id: productId,
+          },
+        })
+        .catch(() => {
+          throw new HttpException(412, `Offer not exist with provided code for Product ID ${productId}`);
+        });
+
+      if (!offer) {
+        throw new HttpException(412, `Offer not exist with provided code for Product ID ${productId}`);
+      }
+    }
+
+    // Check if user has a Product in his cart, on which s/he is applying an offer.
+    const cartProduct: CartProduct = await this.cartProducts.findOne({
+      where: {
+        cart_id: userCart.id,
+        product_id: productId,
+      },
+    });
+
+    if (!cartProduct) {
+      throw new HttpException(412, `You need to first add this product into your cart to apply this offer.`);
+    }
+
+    // Update offer_id on Product of a User Cart.
+    await this.cartProducts.update(
+      { offer_id: offer?.id || null },
+      {
+        where: {
+          cart_id: userCart.id,
+          product_id: productId,
+        },
+      },
+    );
+
+    // Recalculate user bill and returns it.
+    const bill: Cart = await this.calculateBill(userId);
+
+    return bill;
+  }
+
   // public async createOrder(userId: number, products: []): Promise<{ order: Order; products: CartProduct[] }> {
   //   // if (orderId) {
   //   //   const order = this.orders.findOne({ where: { id: orderId, user_id: userId } });

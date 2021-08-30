@@ -2,7 +2,7 @@ import { Router } from 'express';
 import CartController from '@/controllers/cart.controller';
 import { Routes } from '@interfaces/routes.interface';
 import authMiddleware from '@/middlewares/auth.middleware';
-import { addProductIntoCart } from '@/dtos/order.dto';
+import { addProductIntoCart, addOffer } from '@/dtos/cart.dto';
 import validationMiddleware from '@/middlewares/validation.middleware';
 
 class CartRoute implements Routes {
@@ -19,6 +19,7 @@ class CartRoute implements Routes {
     this.router.get(`${this.path}`, authMiddleware, this.cartController.getCurrentCart);
     this.router.get(`${this.path}/bill`, authMiddleware, this.cartController.calculateBill);
     // this.router.post(`${this.path}`, authMiddleware, validationMiddleware(CreateOrderDto, 'body'), this.cartController.createOrder);
+    this.router.post(`${this.path}/offer`, authMiddleware, validationMiddleware(addOffer, 'body'), this.cartController.addOffer);
     this.router.post(`${this.path}`, authMiddleware, validationMiddleware(addProductIntoCart, 'body'), this.cartController.addProductIntoCart);
     this.router.post(`${this.path}/checkout/:id(\\d+)`, authMiddleware, this.cartController.checkoutOrder);
   }
