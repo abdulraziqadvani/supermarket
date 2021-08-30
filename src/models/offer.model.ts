@@ -1,6 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Offer } from '@interfaces/offer.interface';
-// import { ProductModel } from '@models/product.model';
 
 export type OfferCreationAttributes = Optional<Offer, 'id' | 'key' | 'product_id'>;
 
@@ -35,8 +34,6 @@ export default function (sequelize: Sequelize): typeof OfferModel {
       sequelize,
     },
   );
-
-  // OfferModel.belongsTo(ProductModel, { targetKey: 'id' });
 
   return OfferModel;
 }

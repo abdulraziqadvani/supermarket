@@ -1,6 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Cart } from '@/interfaces/cart.interface';
-// import { UserModel } from '@models/user.model';
 
 export type CartCreationAttributes = Optional<Cart, 'id' | 'user_id' | 'status' | 'subtotal' | 'discount' | 'total'>;
 
@@ -51,8 +50,6 @@ export default function (sequelize: Sequelize): typeof CartModel {
       sequelize,
     },
   );
-
-  // CartModel.belongsTo(UserModel, { targetKey: 'id' });
 
   return CartModel;
 }

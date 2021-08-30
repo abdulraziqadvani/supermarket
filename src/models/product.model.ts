@@ -1,6 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Product } from '@interfaces/product.interface';
-// import { OfferModel } from '@models/offer.model';
 
 export type ProductCreationAttributes = Optional<Product, 'id' | 'name' | 'price' | 'available'>;
 
@@ -41,8 +40,6 @@ export default function (sequelize: Sequelize): typeof ProductModel {
       sequelize,
     },
   );
-
-  // ProductModel.hasMany(OfferModel, { foreignKey: 'product_id' });
 
   return ProductModel;
 }
