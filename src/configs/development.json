@@ -1,10 +1,6 @@
 {
     "env": "development",
     "dbConfig": {
-        "host": "localhost",
-        "user": "postgres",
-        "password": "123456",
-        "database": "supermarket",
         "pool": {
             "min": 0,
             "max": 5

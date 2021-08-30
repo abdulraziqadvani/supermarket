@@ -8,7 +8,13 @@ import ProductModel from '@/models/product.model';
 import UserModel from '@/models/user.model';
 import { logger } from '@utils/logger';
 
-const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
+const { pool }: dbConfig = config.get('dbConfig');
+
+const host = process.env.DB_HOST;
+const user = process.env.DB_USER;
+const password = process.env.DB_PASSWORD;
+const database = process.env.DB_DATABASE;
+
 const sequelize = new Sequelize.Sequelize(database, user, password, {
   host: host,
   dialect: 'postgres',

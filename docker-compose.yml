@@ -20,10 +20,10 @@ services:
     ports:
       - '3000:3000'
     environment:
-      MYSQL_USER: root
-      MYSQL_PASSWORD: password
-      MYSQL_HOST: mysql
-      MYSQL_DATABASE: sequelize
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_HOST: postgres
+      POSTGRES_DATABASE: supermarket
     volumes:
       - ./:/app
       - /app/node_modules
@@ -31,18 +31,19 @@ services:
     networks:
       - backend
     links:
-      - mysql
+      - postgres
     depends_on:
-      - mysql
-  mysql:
-    image: mysql:5.7
-    container_name: mysql
+      - postgres
+
+  postgres:
+    image: postgres:13.4
+    container_name: postgres
     environment:
-      MYSQL_ROOT_USER: root
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: sequelize
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DATABASE: supermarket
     ports:
-      - '3306:3306'
+      - '5432:5432'
     networks:
       - backend
 
