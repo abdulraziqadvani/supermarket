@@ -12,7 +12,9 @@
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
     "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod",
-    "deploy:dev": "pm2 start ecosystem.config.js --only dev"
+    "deploy:dev": "pm2 start ecosystem.config.js --only dev",
+    "migrate-db": "node_modules/.bin/sequelize db:migrate --config src/databases/config.js",
+    "migrate-db:undo": "node_modules/.bin/sequelize db:migrate:undo --config src/databases/config.js"
   },
   "dependencies": {
     "@microsoft/tsdoc": "^0.13.2",
