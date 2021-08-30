@@ -158,7 +158,7 @@ class OrderService {
           returning: true,
         },
       )
-      .then(([, savedUser]) => savedUser[0]);
+      .then(([, savedRecord]) => savedRecord[0]);
 
     return userCart;
   }
@@ -230,6 +230,43 @@ class OrderService {
     const bill: Cart = await this.calculateBill(userId);
 
     return bill;
+  }
+
+  /**
+   * Mark the user cart to complete and checkout.
+   *
+   * @param {number} userId - ID of a User.
+   * @returns {Cart} - Returns the update cart information of a User.
+   */
+  public async checkout(userId: number): Promise<Cart> {
+    const orderStatus = config.get('orderStatus');
+
+    // Check if has any active cart exist.
+    const userCart: Cart = await this.cart.findOne({
+      where: { user_id: userId },
+    });
+
+    // Throws an if no active cart exist.
+    if (!userCart) {
+      throw new HttpException(412, `No cart exist for this user.`);
+    }
+
+    // Check if user has generated the bill.
+    if ([userCart.subtotal, userCart.discount, userCart.total].includes(null)) {
+      throw new HttpException(412, `Kindly regenerate your bill.`);
+    }
+
+    // Update the cart of a user and mark as Complete.
+    const cart: Cart = await this.cart
+      .update(
+        {
+          status: orderStatus['COMPLETED'],
+        },
+        { where: { id: userCart.id }, returning: true },
+      )
+      .then(([, savedRecord]) => savedRecord[0]);
+
+    return cart;
   }
 
   // public async createOrder(userId: number, products: []): Promise<{ order: Order; products: CartProduct[] }> {

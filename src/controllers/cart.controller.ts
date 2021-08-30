@@ -75,6 +75,23 @@ class CartController {
     }
   };
 
+  /**
+   * Generate bill of a user cart.
+   *
+   * @param {RequestWithUser} req - Request response along with User data.
+   * @param {Response} res - Response to be sent to a user.
+   * @param {NextFunction} next - For Triggering the next function.
+   */
+  public checkout = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const result: Cart = await this.cartService.checkout(req.user.id);
+
+      res.status(200).json({ data: result, message: 'Cart has been checked out.' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // public createOrder = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   //   try {
   //     // const products = req.body.products;
