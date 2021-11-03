@@ -1,6 +1,6 @@
 ## 😎 Introducing The Project
 
-This project resolves the Supermarket Problem (created exclusively for Mikaels Labs)
+This project resolves the Supermarket Problem.
 
 ## 🛎 Available Commands for the Server
 
